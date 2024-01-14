@@ -50,8 +50,8 @@ public class PLogs {
 
     public static final RegistryObject<Item> ANALYZER = ITEMS.register("analyzer", Analyzer::new);
 
-    Connection connection = null;
-    Statement statement = null;
+    public static Connection connection = null;
+    public static Statement statement = null;
 
     public PLogs() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -77,7 +77,7 @@ public class PLogs {
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS \"farmland_trample\" ( \"uuid\" VARCHAR(100) NULL, \"timestamp\" INTEGER NULL, \"x\" INTEGER NULL, \"y\" INTEGER NULL, \"z\" INTEGER NULL, \"block\" VARCHAR(50) NULL ) ;");
             statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS \"users\" ( \"uuid\" VARCHAR(100) UNIQUE , \"first_login\" INTEGER NULL, \"last_login\" INTEGER NULL) ;");
+                    "CREATE TABLE IF NOT EXISTS \"users\" ( \"uuid\" VARCHAR(100) UNIQUE, \"first_login\" INTEGER NULL, \"last_login\" INTEGER NULL, \"first_name\" VARCHAR(100), \"last_name\" VARCHAR(100)) ;");
 
         } catch (SQLException e) {
             LOGGER.info(e.getMessage());
@@ -86,7 +86,6 @@ public class PLogs {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        LOGGER.info("HELLO FROM COMMON SETUP");
     }
 
     public static final CreativeModeTab ITEM_GROUP = new CreativeModeTab("PLogs") {
@@ -113,18 +112,21 @@ public class PLogs {
             if (count == 0) {
 
                 PreparedStatement stmt2 = connection.prepareStatement(
-                        "INSERT INTO users (\"uuid\", \"first_login\", \"last_login\") VALUES (?, ?, ?);");
+                        "INSERT INTO users (\"uuid\", \"first_login\", \"last_login\", \"first_name\", \"last_name\") VALUES (?, ?, ?, ?, ?);");
                 stmt2.setString(1, event.getEntity().getStringUUID());
                 stmt2.setInt(2, Math.toIntExact(Instant.now().getEpochSecond()));
                 stmt2.setInt(3, Math.toIntExact(Instant.now().getEpochSecond()));
+                stmt2.setString(4, event.getEntity().getName().getString());
+                stmt2.setString(5, event.getEntity().getName().getString());
                 stmt2.executeUpdate();
 
             } else {
 
                 PreparedStatement stmt2 = connection.prepareStatement(
-                        "UPDATE users set last_login = ? WHERE uuid = ?;");
+                        "UPDATE users set last_login = ?, last_name = ? WHERE uuid = ?;");
                 stmt2.setInt(1, Math.toIntExact(Instant.now().getEpochSecond()));
-                stmt2.setString(2, event.getEntity().getStringUUID());
+                stmt2.setString(2, event.getEntity().getName().getString());
+                stmt2.setString(3, event.getEntity().getStringUUID());
                 stmt2.executeUpdate();
 
             }
