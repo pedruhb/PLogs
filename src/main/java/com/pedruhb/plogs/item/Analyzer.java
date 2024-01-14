@@ -48,7 +48,7 @@ public class Analyzer extends LoreItem {
         Player player = context.getPlayer();
 
         player.sendSystemMessage(
-                Component.literal("Analyzing -> X " + pos.getX() + " / Y " + pos.getY() + " / Z " + pos.getX()));
+                Component.literal("Analyzing -> X " + pos.getX() + " / Y " + pos.getY() + " / Z " + pos.getZ()));
 
         /* Block Break */
         ItemStack stack_break = new ItemStack(Items.WRITTEN_BOOK);
@@ -60,8 +60,7 @@ public class Analyzer extends LoreItem {
 
         try {
 
-            PreparedStatement stmt = PLogs.connection
-                    .prepareStatement("SELECT block_break.*, users.last_name FROM block_break, users WHERE users.uuid = block_break.uuid AND block_break.x = ? AND block_break.y = ? AND block_break.z = ?");
+            PreparedStatement stmt = PLogs.connection.prepareStatement("SELECT block_break.*, users.last_name FROM block_break, users WHERE users.uuid = block_break.uuid AND block_break.x = ? AND block_break.y = ? AND block_break.z = ?");
             stmt.setInt(1, pos.getX());
             stmt.setInt(2, pos.getY());
             stmt.setInt(3, pos.getZ());
@@ -72,7 +71,7 @@ public class Analyzer extends LoreItem {
 
             int count = 0;
 
-            String tmp_page =  "X " + pos.getX() + " / Y " + pos.getY() + " / Z " + pos.getX()+"\n";
+            String tmp_page =  "X " + pos.getX() + " / Y " + pos.getY() + " / Z " + pos.getZ()+"\n";
             
             while (rs.next()) {
 
