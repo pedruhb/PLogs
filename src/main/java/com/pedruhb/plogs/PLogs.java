@@ -2,12 +2,9 @@ package com.pedruhb.plogs;
 
 import com.mojang.logging.LogUtils;
 import com.pedruhb.plogs.item.Analyzer;
-
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -88,13 +85,6 @@ public class PLogs {
     private void commonSetup(final FMLCommonSetupEvent event) {
     }
 
-    public static final CreativeModeTab ITEM_GROUP = new CreativeModeTab("PLogs") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(ANALYZER.get());
-        }
-    };
-
     @SubscribeEvent
     public void onEvent(EntityJoinLevelEvent event) throws SQLException {
         if ((event.getEntity() instanceof Player)) {
@@ -135,18 +125,20 @@ public class PLogs {
     }
 
     @SubscribeEvent
-    public void blockBreakInteract(RightClickBlock event) throws SQLException {
+    public void blockInteract(RightClickBlock event) throws SQLException {
         if (event.getLevel() instanceof Level && event.getHand() == InteractionHand.MAIN_HAND
                 && event.getEntity() instanceof Player && event.getSide() == LogicalSide.SERVER) {
+
+            if (event.getEntity().getMainHandItem().getItem() == PLogs.ANALYZER.get())
+                return;
 
             Level level = event.getEntity().getLevel();
             BlockState state = level.getBlockState(event.getPos());
             Block block = state.getBlock();
 
+            LOGGER.info(Instant.now().toEpochMilli() + "");
+
             if (state.hasBlockEntity()) {
-
-                LOGGER.info(block.getDescriptionId());
-
                 PreparedStatement stmt = connection.prepareStatement(
                         "INSERT INTO block_interact (\"uuid\", \"timestamp\", \"x\", \"y\", \"z\", \"block\") VALUES (?, ?, ?, ?, ?, ?);");
                 stmt.setString(1, event.getEntity().getUUID().toString());
@@ -157,6 +149,7 @@ public class PLogs {
                 stmt.setString(6, block.getDescriptionId());
                 stmt.executeUpdate();
             }
+
         }
     }
 
